@@ -1,0 +1,8 @@
+<div class="container list-group" *ngFor="let message of messages">
+  <div class="list-group-item list-group-item-action m-1">
+    <span>Date: {{message.datetime}}</span>
+    <hr>
+    <span>Message: {{message.message}}</span>
+    <span class="d-block">Author: {{message.author}}</span>
+  </div>
+</div>
