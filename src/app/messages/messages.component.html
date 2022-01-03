@@ -1,8 +1,15 @@
-<div class="container list-group" *ngFor="let message of messages">
-  <div class="list-group-item list-group-item-action m-1">
-    <span>Date: {{message.datetime}}</span>
-    <hr>
-    <span>Message: {{message.message}}</span>
-    <span class="d-block">Author: {{message.author}}</span>
+<div class="text-center" *ngIf="loading">
+  <div class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+<div *ngIf="!loading">
+  <div class="container list-group m-auto" *ngFor="let message of messages">
+    <div class="list-group-item list-group-item-action m-1 col-6">
+      <span>Date: {{message.datetime}}</span>
+      <hr>
+      <span>Message: {{message.message}}</span>
+      <span class="d-block">Author: {{message.author}}</span>
+    </div>
   </div>
 </div>

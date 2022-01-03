@@ -14,20 +14,21 @@ export class MessagesComponent implements OnInit, OnDestroy{
   messagesSubscription!: Subscription;
   loadingSubscription!: Subscription;
 
-  constructor(private messageService: MessageService) { }
+  constructor(private messageService: MessageService) {}
 
   ngOnInit(){
     this.messagesSubscription = this.messageService.messagesChange.subscribe((messages: Message[]) => {
-      this.messages = messages;
+      this.messages = messages.reverse();
     })
     this.loadingSubscription = this.messageService.loadingChange.subscribe((isLoading: boolean) => {
       this.loading = isLoading;
     })
-    this.messageService.start();
+    this.messageService.getAllMessages();
   }
 
   ngOnDestroy(){
     this.messagesSubscription.unsubscribe();
     this.loadingSubscription.unsubscribe();
+    this.messageService.stop();
   }
 }
