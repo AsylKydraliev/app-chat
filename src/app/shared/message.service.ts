@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Message } from './message.model';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,6 @@ export class MessageService{
 
   getAllMessages(){
     this.loadingChange.next(true);
-
     this.http.get<{[id: string]: Message}>('http://146.185.154.90:8000/messages').pipe(map(result => {
       if(result === null){
         return [];
@@ -35,7 +34,7 @@ export class MessageService{
         this.messages = result;
         this.messagesChange.next(this.messages.slice());
         this.loadingChange.next(false);
-        this.start(this.messages[this.messages.length - 1]['datetime']);
+        this.start(this.messages[this.messages.length - 1].datetime);
       }, () => {
         this.loadingChange.next(false);
       })
@@ -51,24 +50,31 @@ export class MessageService{
   }
 
   start(date: string){
-    this.interval = setInterval(() => {
-      this.http.get<{[id: string]: Message}>(`http://146.185.154.90:8000/messages?datetime=${date}`).pipe(
-        map(result => {
-            return Object.keys(result).map(id => {
-              const message = result[id];
-              return new Message(message._id, message.message, message.author, message.datetime)
+    const observable = new Observable<Message[]>(subscriber => {
+      this.interval = setInterval(() => {
+        this.http.get<{[id: string]: Message}>(`http://146.185.154.90:8000/messages?datetime=${date}`)
+          .pipe(
+            map(result => {
+                return Object.keys(result).map(id => {
+                  const message = result[id];
+                  return new Message(message._id, message.message, message.author, message.datetime)
+                })
+              }
+            ))
+            .subscribe(messages => {
+              if(messages.length !== 0) {
+                if(this.messages) {
+                  this.lastMessages = this.messages.concat(messages);
+                  subscriber.next(this.lastMessages.slice());
+                }
+              }
             })
-          }
-        ))
-        .subscribe(messages => {
-          if(messages.length !== 0) {
-            if(this.messages) {
-              this.lastMessages = this.messages.concat(messages);
-              this.messagesChange.next(this.lastMessages.slice());
-            }
-          }
-        })
-    }, 1000)
+      }, 1000)
+    });
+    observable.subscribe((messages: Message[]) => {
+      this.lastMessages = messages;
+      this.messagesChange.next(this.lastMessages.slice());
+    });
   }
 
   stop(){

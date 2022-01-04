@@ -22,11 +22,22 @@ export class FormComponent implements OnInit, OnDestroy {
     })
   }
 
+  setFormValue(value: {[key: string]: string}) {
+    setTimeout(() => {
+      this.postForm.form.setValue(value);
+    })
+  }
+
   onSend() {
     const body = new HttpParams()
       .set('message', this.postForm.value.name)
       .set('author', this.postForm.value.post);
     this.messageService.postMessage(body);
+
+    this.setFormValue({
+      name: '',
+      post: '',
+    })
   }
 
   ngOnDestroy(){
