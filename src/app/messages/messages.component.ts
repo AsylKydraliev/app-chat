@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 })
 export class MessagesComponent implements OnInit, OnDestroy{
   messages!: Message[];
+  date: string[] = [];
   loading = false;
   messagesSubscription!: Subscription;
   loadingSubscription!: Subscription;
@@ -19,11 +20,18 @@ export class MessagesComponent implements OnInit, OnDestroy{
   ngOnInit(){
     this.messagesSubscription = this.messageService.messagesChange.subscribe((messages: Message[]) => {
       this.messages = messages.reverse();
+      this.getDate();
     })
     this.loadingSubscription = this.messageService.loadingChange.subscribe((isLoading: boolean) => {
       this.loading = isLoading;
     })
     this.messageService.getAllMessages();
+  }
+
+  getDate(){
+    this.date = this.messages.map(message => {
+      return new Date(message.datetime).toLocaleDateString() + ' ' + new Date(message.datetime).toLocaleTimeString();
+    })
   }
 
   ngOnDestroy(){
